@@ -1,4 +1,3 @@
-import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Home, 
@@ -9,45 +8,51 @@ import {
   FileText, 
   Settings, 
   X,
-  Leaf 
+  Leaf,
+  House,
+  BookMarked
 } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user } = useAuth();
-  const location = useLocation();
   
   const getNavItems = () => {
     const commonItems = [
-      { to: '/', icon: <Home className="h-4 w-4" />, label: 'Dashboard' },
-      { to: '/auctions', icon: <Package className="h-4 w-4" />, label: 'Auctions' },
+      { to: '/', icon: <Home size={16} />, label: 'Dashboard' },
+      { to: '/auctions', icon: <Package size={16} />, label: 'Auctions' },
     ];
     
     switch (user?.user_type) {
       case 'admin':
         return [
           ...commonItems,
-          { to: '/users', icon: <Users className="h-4 w-4" />, label: 'Users' },
-          { to: '/reports', icon: <BarChart className="h-4 w-4" />, label: 'Reports' },
-          { to: '/settings', icon: <Settings className="h-4 w-4" />, label: 'Settings' },
+          { to: '/users', icon: <Users size={16} />, label: 'Users' },
+          { to: '/reports', icon: <BarChart size={16} />, label: 'Reports' },
+          { to: '/settings', icon: <Settings size={16} />, label: 'Settings' },
+          { to: 'admin/company-verification', icon: <House size={16} />, label: 'Companies' },
         ];
       case 'trader':
         return [
           ...commonItems,
-          { to: '/my-listings', icon: <FileText className="h-4 w-4" />, label: 'My Listings' },
-          { to: '/orders', icon: <ShoppingCart className="h-4 w-4" />, label: 'Orders' },
+          { to: '/company', icon: <House size={16} />, label: 'Company' },
+          { to: '/create-auction', icon: <BarChart size={16} />, label: 'Create Auction' },
+          { to: '/orders', icon: <ShoppingCart size={16} />, label: 'Orders' },
+          { to: '/tobacco-details', icon: <FileText size={16} />, label: 'Tobacco Listings' },
         ];
       case 'buyer':
         return [
           ...commonItems,
-          { to: '/my-bids', icon: <BarChart className="h-4 w-4" />, label: 'My Bids' },
-          { to: '/orders', icon: <ShoppingCart className="h-4 w-4" />, label: 'Orders' },
+          { to: '/my-bids', icon: <BarChart size={16} />, label: 'My Bids' },
+          { to: '/orders', icon: <ShoppingCart size={16} />, label: 'Orders' },
+
         ];
       case 'timb_officer':
         return [
           ...commonItems,
-          { to: '/pending-clearance', icon: <FileText className="h-4 w-4" />, label: 'Pending Clearance' },
-          { to: '/reports', icon: <BarChart className="h-4 w-4" />, label: 'Reports' },
+          { to: '/pending-clearance', icon: <FileText size={16} />, label: 'Pending Clearance' },
+          { to: '/reports', icon: <BarChart size={16} />, label: 'Reports' },
+          {to: '/timb-officer', icon: <Leaf size={16} />, label: 'Tobacco' },
         ];
       default:
         return commonItems;
@@ -56,82 +61,185 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   
   const navItems = getNavItems();
   
+  // Determine if a route is active
+  const isActiveRoute = (path) => {
+    return window.location.pathname === path || 
+           (path !== '/' && window.location.pathname.startsWith(path));
+  };
+  
+  if (!isOpen && window.innerWidth < 768) {
+    return null;
+  }
+  
   return (
     <>
       {/* Mobile overlay */}
-      {isOpen && (
+      {isOpen && window.innerWidth < 768 && (
         <div 
-          className="fixed inset-0 z-40 bg-zinc-950/80 backdrop-blur-sm md:hidden"
           onClick={toggleSidebar}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 40
+          }}
         />
       )}
       
-      {/* Sidebar */}
       <aside 
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-zinc-950 transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:z-auto ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        style={{
+          position: window.innerWidth < 768 ? 'fixed' : 'relative',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: '256px',
+          backgroundColor: '#09090b', // zinc-950
+          color: 'white',
+          zIndex: 50,
+          transform: !isOpen && window.innerWidth < 768 ? 'translateX(-100%)' : 'translateX(0)',
+          transition: 'transform 0.2s ease-in-out',
+          overflow: 'hidden'
+        }}
       >
-        <div className="relative flex flex-col h-full">
+        <div style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRight: '1px solid rgba(34, 197, 94, 0.2)', // border-green-500/20
+          position: 'relative',
+          zIndex: 20
+        }}>
           {/* Background pattern */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.15),transparent_40%),radial-gradient(circle_at_70%_60%,rgba(34,197,94,0.1),transparent_50%)]"></div>
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-soft-light"></div>
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 10,
+            overflow: 'hidden',
+            pointerEvents: 'none'
+          }}>
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(circle at 30% 20%, rgba(34, 197, 94, 0.15), transparent 40%), radial-gradient(circle at 70% 60%, rgba(34, 197, 94, 0.1), transparent 50%)'
+            }}></div>
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: 'url("/noise.png")',
+              opacity: 0.03,
+              mixBlendMode: 'soft-light'
+            }}></div>
           </div>
-
-          {/* Content */}
-          <div className="relative z-10 flex flex-col h-full border-r border-green-500/20">
-            {/* Sidebar header */}
-            <div className="flex items-center gap-2 h-12 px-3 border-b border-green-500/20">
-              <Leaf className="h-4 w-4 text-green-500" />
-              <h2 className="text-sm font-bold text-white">TobaccoTrade</h2>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="md:hidden ml-auto text-green-500 hover:text-green-400 hover:bg-green-500/10 h-7 w-7" 
+          
+          {/* Header */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            height: '48px',
+            padding: '0 12px',
+            borderBottom: '1px solid rgba(34, 197, 94, 0.2)',
+            position: 'relative',
+            zIndex: 30
+          }}>
+            <Leaf size={16} color="#22c55e" />
+            <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: 'white' }}>TobaccoTrade</h2>
+            {window.innerWidth < 768 && (
+              <button 
                 onClick={toggleSidebar}
+                style={{
+                  marginLeft: 'auto',
+                  color: '#22c55e',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: '4px',
+                  cursor: 'pointer',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close menu</span>
-              </Button>
-            </div>
-            
-            {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto px-3 py-2">
-              <ul className="space-y-0.5">
-                {navItems.map((item) => (
-                  <li key={item.to}>
-                    <NavLink 
-                      end={item.to === '/'} 
-                      to={item.to}
-                      className={({ isActive }) => `
-                        group flex items-center gap-2 px-2.5 py-2 rounded-md transition-all duration-200
-                        ${isActive 
-                          ? 'bg-green-500/20 text-green-400 ring-1 ring-green-500/30 shadow-sm shadow-green-900/30' 
-                          : 'text-zinc-400 hover:text-green-400 hover:bg-green-500/10'
+                <X size={16} />
+              </button>
+            )}
+          </div>
+          
+          {/* Navigation */}
+          <nav style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '8px 12px',
+            position: 'relative',
+            zIndex: 30
+          }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {navItems.map((item) => {
+                const active = isActiveRoute(item.to);
+                
+                return (
+                  <li key={item.to} style={{ margin: '2px 0' }}>
+                    <a
+                      href={item.to}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.location.href = item.to;
+                        if (window.innerWidth < 768) {
+                          toggleSidebar();
                         }
-                      `}
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 10px',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                        position: 'relative',
+                        zIndex: 30,
+                        transition: 'all 0.2s',
+                        color: active ? '#4ade80' : '#a1a1aa',
+                        backgroundColor: active ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                        boxShadow: active ? '0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(34, 197, 94, 0.3)' : 'none'
+                      }}
                     >
-                      <span className={`transition-colors duration-200 ${
-                        location.pathname === item.to 
-                          ? 'text-green-400' 
-                          : 'text-zinc-400 group-hover:text-green-400'
-                      }`}>
+                      <span style={{ 
+                        color: active ? '#4ade80' : '#a1a1aa',
+                        transition: 'color 0.2s'
+                      }}>
                         {item.icon}
                       </span>
-                      <span className="text-sm font-medium">{item.label}</span>
-                    </NavLink>
+                      <span style={{ 
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}>
+                        {item.label}
+                      </span>
+                    </a>
                   </li>
-                ))}
-              </ul>
-            </nav>
-            
-            {/* Sidebar footer */}
-            <div className="px-3 py-2 border-t border-green-500/20">
-              <p className="text-[10px] text-green-500">
-                © {new Date().getFullYear()} TobaccoTrade
-              </p>
-            </div>
+                );
+              })}
+            </ul>
+          </nav>
+          
+          {/* Footer */}
+          <div style={{
+            padding: '8px 12px',
+            borderTop: '1px solid rgba(34, 197, 94, 0.2)',
+            position: 'relative',
+            zIndex: 30
+          }}>
+            <p style={{ 
+              fontSize: '10px',
+              color: '#22c55e',
+              margin: 0
+            }}>
+              © {new Date().getFullYear()} TobaccoTrade
+            </p>
           </div>
         </div>
       </aside>

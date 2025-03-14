@@ -243,6 +243,7 @@ const RegisterPage = () => {
                             <SelectItem value="trader" className="focus:bg-green-500/20 focus:text-white">Trader (Seller)</SelectItem>
                             <SelectItem value="buyer" className="focus:bg-green-500/20 focus:text-white">Buyer</SelectItem>
                             <SelectItem value="timb_officer" className="focus:bg-green-500/20 focus:text-white">TIMB Officer</SelectItem>
+                            <SelectItem value="admin" className="focus:bg-green-500/20 focus:text-white">Admin</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
